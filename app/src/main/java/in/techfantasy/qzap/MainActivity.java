@@ -1,15 +1,19 @@
 package in.techfantasy.qzap;
 
+import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.databinding.BindingAdapter;
 import android.databinding.DataBindingUtil;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,7 +32,8 @@ import in.techfantasy.qzap.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private GameSessionViewModel gameSessionViewModel;
-    ProgressBar progressBar;
+    ProgressDialog progressBar;
+    List<Question> Qlist;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,26 +44,65 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.executePendingBindings();
        // setContentView(R.layout.activity_main);
         //gameSessionViewModel.setUp();
-        progressBar=new ProgressBar(this);
-        progressBar.setVisibility(View.VISIBLE);
-        List<Question> Qlist=  new ArrayList<>();
-               // Qlist=gameSessionViewModel.getQuestions();
-        Qlist.add(new Question("1","1",1));
-        Qlist.add(new Question("1","2",1));
-        Qlist.add(new Question("1","3",1));
-        Qlist.add(new Question("1","4",1));
+        progressBar=new ProgressDialog(this);
+        progressBar.setIndeterminate(true);
+        //progressBar.show();
+        Qlist=  new ArrayList<>();
+        new GetQuestionsAsync().execute();
 
-        for (Question item : Qlist) {
-            renderQuestion(item.getAnswer());
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+
+
 
 
     }
+
+
+    class GetQuestionsAsync extends AsyncTask<String,String,List<Question>>{
+
+        @Override
+        protected List<Question> doInBackground(String... strings) {
+            while (gameSessionViewModel.getQuestions()==null) {
+
+            }
+            return gameSessionViewModel.getQuestions();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(List<Question> s) {
+            super.onPostExecute(s);
+            Qlist=s;
+            progressBar.dismiss();
+            for (Question item : Qlist) {
+                Log.d("Answer",item.getAnswer());
+                renderQuestion(item.getAnswer());
+                try {
+                    Thread.sleep(2000);
+                    for (int btnId :gameSessionViewModel.idStack){
+                        Button btn=findViewById(btnId);
+                        //btn.setVisibility(View.GONE);
+                        ViewGroup layout=(ViewGroup) btn.getParent();
+                        if(layout!=null)
+                            layout.removeView(btn);
+                    }
+                    gameSessionViewModel.clearSatck();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            progressBar.show();
+        }
+    }
+
 
 
 
@@ -75,16 +119,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void showProgressBar(boolean showprogress){
-        if(showprogress){
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
-        }
-        else {
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.GONE);
-        }
-    }
+
 
     private void renderQuestion(String answer){
 
@@ -171,4 +206,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 }
+

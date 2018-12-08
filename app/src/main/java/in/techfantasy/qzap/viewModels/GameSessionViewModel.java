@@ -30,7 +30,7 @@ import retrofit2.Response;
 
 public class GameSessionViewModel extends ViewModel implements Observable {
     private GameSession gameSession;
-    private Stack<Integer> idStack=new Stack<>();
+    public Stack<Integer> idStack=new Stack<>();
     List<Question> QuestionList;
 
 
@@ -45,7 +45,7 @@ public class GameSessionViewModel extends ViewModel implements Observable {
     public GameSessionViewModel (){
         if(gameSession==null) {
             gameSession = new GameSession();
-            //setUp();
+            setUp();
         }
 
     }
