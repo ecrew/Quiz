@@ -14,7 +14,11 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import in.techfantasy.qzap.Models.Question;
 import in.techfantasy.qzap.viewModels.GameSessionViewModel;
@@ -24,7 +28,7 @@ import in.techfantasy.qzap.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private GameSessionViewModel gameSessionViewModel;
-
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,10 +39,23 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.executePendingBindings();
        // setContentView(R.layout.activity_main);
         //gameSessionViewModel.setUp();
-        gameSessionViewModel.getQuestions();
+        progressBar=new ProgressBar(this);
+        progressBar.setVisibility(View.VISIBLE);
+        List<Question> Qlist=  new ArrayList<>();
+               // Qlist=gameSessionViewModel.getQuestions();
+        Qlist.add(new Question("1","1",1));
+        Qlist.add(new Question("1","2",1));
+        Qlist.add(new Question("1","3",1));
+        Qlist.add(new Question("1","4",1));
 
-
-        renderQuestion("test");
+        for (Question item : Qlist) {
+            renderQuestion(item.getAnswer());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
 
     }
@@ -58,6 +75,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void showProgressBar(boolean showprogress){
+        if(showprogress){
+            progressBar.setIndeterminate(true);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        else {
+            progressBar.setIndeterminate(true);
+            progressBar.setVisibility(View.GONE);
+        }
+    }
 
     private void renderQuestion(String answer){
 
